@@ -1,0 +1,7 @@
+{
+  "name": "infotur",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue"
+}
