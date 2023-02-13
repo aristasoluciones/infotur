@@ -1,31 +1,73 @@
 import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
-import TabsPage from '../views/TabsPage.vue'
+import MainPage from '../views/MainPage.vue';
+import { store } from "@/store";
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: '/tabs/tab1'
+    name:"home",
+    redirect: '/captura',
   },
   {
-    path: '/tabs/',
-    component: TabsPage,
+    path: '/login',
+    name: 'login',
+    component: () => import('@/views/UserLogin.vue'),
+  },
+  {
+    path: '/captura',
+    name: "mainCaptura",
+    redirect: '/menu/captura'
+  },
+  {
+    path: '/menu/',
+    component: MainPage,
     children: [
       {
         path: '',
-        redirect: '/tabs/tab1'
+        redirect: 'captura'
       },
       {
-        path: 'tab1',
-        component: () => import('@/views/Tab1Page.vue')
+        path: 'configuracion',
+        name: "configuracion",
+        beforeEnter: (to, from, next) => {
+          if(store.autenticado !== 1)
+            next({ name: "login" });
+          else next()
+        },
+        component: () => import('@/views/InicioConfiguracion.vue')
       },
       {
-        path: 'tab2',
-        component: () => import('@/views/Tab2Page.vue')
+        path: 'captura/:idx?',
+        name: 'captura',
+        props:true,
+        beforeEnter: (to, from, next) => {
+          if(store.autenticado !== 1)
+            next({ name: "login" });
+          else next()
+        },
+        component: () => import('@/views/NavegacionCaptura.vue'),
+        
       },
       {
-        path: 'tab3',
-        component: () => import('@/views/Tab3Page.vue')
+        path: 'listado',
+        beforeEnter: (to, from, next) => {
+          if(store.autenticado !== 1)
+            next({ name: "login" });
+          else next()
+        },
+        component: () => import('@/views/ListaCaptura.vue'),
+      },
+      {
+        path: 'listado/editar/:idx?',
+        name: 'editar-captura',
+        props:true,
+        beforeEnter: (to, from, next) => {
+          if(to.name !== 'login' && store.autenticado !== 1)
+            next({ name: "login" });
+          else next()
+        },
+        component: () => import('@/views/EditarCaptura.vue'),
       }
     ]
   }
@@ -34,6 +76,7 @@ const routes: Array<RouteRecordRaw> = [
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
-})
+});
+
 
 export default router

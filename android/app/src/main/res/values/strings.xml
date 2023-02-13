@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">infotur</string>
+    <string name="title_activity_main">infotur</string>
+    <string name="package_name">com.salvatore.infotur</string>
+    <string name="custom_url_scheme">com.salvatore.infotur</string>
+</resources>

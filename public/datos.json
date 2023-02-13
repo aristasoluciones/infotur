@@ -1,0 +1,41 @@
+{
+  "paises": [
+    {
+      "id": 1,
+      "nombre": "México"
+    },
+    {
+      "id": 2,
+      "nombre": "EU"
+    }
+  ],
+  "estados":[
+    {
+      "id": 1,
+      "pais_id": 1,
+      "nombre": "Chiapas"
+    },
+    {
+      "id": 2,
+      "pais_id": 1,
+      "nombre": "CDMX"
+    },
+    {
+      "id": 3,
+      "pais_id": 2,
+      "nombre": "UTAH"
+    }
+  ],
+  "municipios":[
+    {
+      "id": 1,
+      "estado_id": 1,
+      "nombre": "Tuxtla Gutierrez"
+    },
+    {
+      "id": 2,
+      "estado_id": 2,
+      "nombre": "Gustavo a madero"
+    }
+  ]
+}
