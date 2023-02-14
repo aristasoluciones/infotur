@@ -1,4 +1,4 @@
-package com.salvatore.infotur;
+package com.turismo.infotur;
 
 import com.getcapacitor.BridgeActivity;
 
