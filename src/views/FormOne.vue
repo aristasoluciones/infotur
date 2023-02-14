@@ -8,8 +8,8 @@
                          label="Nacionalidad"
                          name="nacionalidad" v-slot="{ field }">
                   <ion-select placeholder="Seleccionar.." v-bind="field">
-                    <template v-for="(item, index) in store.nacionalidades" :key="index">
-                      <ion-select-option :value="item.id" v-text="item.nombre"></ion-select-option>
+                    <template v-for="(item, index) in store.nacionalidades.sort((a, b) => (b.nombre > a.nombre) ? -1 : 1)" :key="{index}">
+                      <ion-select-option :value="item.id" v-text="item.nombre" ></ion-select-option>
                     </template>
                   </ion-select>
                 </v-field>
@@ -21,7 +21,7 @@
                 <ion-label color="secondary" position="stacked">País de origen</ion-label>
                 <v-field v-model="store.current_captura.select_pais_origen"
                          label="País de origen"
-                         name="select_pais_origen" v-slot="{ field }">
+                         name="pais" v-slot="{ field }">
                   <ion-select v-bind="field" placeholder="Seleccionar..">
                     <template v-for="(item, index) in paisesFtr" :key="index">
                       <ion-select-option :value="item.id_pais" v-text="item.nombre"></ion-select-option>
@@ -29,7 +29,7 @@
                   </ion-select>
                 </v-field>
               </ion-item>
-              <error-message name="select_pais_origen" />
+              <error-message class="text-danger" name="pais" />
             </ion-col>
             <ion-col size="12" size-md="6">
               <ion-item fill="outline">
@@ -154,7 +154,7 @@
                           name="proposito"
                           v-slot="{ field }">
                   <ion-select v-bind="field" placeholder="Seleccionar.." :multiple="true">
-                    <template v-for="(item, index) in store.propositos" :key="index">
+                    <template v-for="(item, index) in store.propositos.sort((a, b) => (b.nombre > a.nombre) ? -1 : 1)" :key="index">
                       <ion-select-option :value="item.id_motivo_estancia" v-text="item.nombre"></ion-select-option>
                     </template>
                   </ion-select>
@@ -170,7 +170,7 @@
                          label="Tipo de congreso"
                          v-slot="{ field }">
                   <ion-select v-bind="field" placeholder="Seleccionar.." :multiple="true">
-                    <template v-for="(item, index) in store.congresos" :key="index">
+                    <template v-for="(item, index) in store.congresos.sort((a, b) => (b.nombre > a.nombre) ? -1 : 1)" :key="index">
                       <ion-select-option :value="item.id_tipo_congreso" v-text="item.nombre"></ion-select-option>
                     </template>
                   </ion-select>
@@ -186,7 +186,7 @@
                          name="alojamiento"
                          v-slot="{ field }">
                   <ion-select v-bind="field" placeholder="Seleccionar.." :multiple="true">
-                    <template v-for="(item, index) in store.alojamientos" :key="index">
+                    <template v-for="(item, index) in store.alojamientos.sort((a, b) => (b.nombre > a.nombre) ? -1 : 1)" :key="index">
                       <ion-select-option :value="item.id_alojamiento_estancia" v-text="item.nombre"></ion-select-option>
                     </template>
                   </ion-select>
@@ -202,7 +202,7 @@
                          label="Arribó a entidad"
                          v-slot="{ field }">
                   <ion-select v-bind="field" placeholder="Seleccionar..">
-                    <template v-for="(item, index) in transportesFiltrado" :key="index">
+                    <template v-for="(item, index) in store.transportes.sort((a, b) => (b.nombre > a.nombre) ? -1 : 1)" :key="index">
                       <ion-select-option :value="item.id_tipo_transporte" v-text="item.nombre"></ion-select-option>
                     </template>
                   </ion-select>
@@ -218,7 +218,7 @@
                          label="Se enteró de chiapas"
                          v-slot="{ field }">
                   <ion-select v-bind="field" placeholder="Seleccionar..">
-                    <template v-for="(item, index) in store.medios" :key="index">
+                    <template v-for="(item, index) in store.medios.sort((a, b) => (b.nombre > a.nombre) ? -1 : 1)" :key="index">
                       <ion-select-option :value="item.id_medio_informacion" v-text="item.nombre"></ion-select-option>
                     </template>
                   </ion-select>
@@ -234,7 +234,7 @@
                          label="Organizó su viaje"
                          v-slot="{ field }">
                   <ion-select v-bind="field" placeholder="Seleccionar..">
-                    <template v-for="(item, index) in store.organizadores" :key="index">
+                    <template v-for="(item, index) in store.organizadores.sort((a, b) => (b.nombre > a.nombre) ? -1 : 1)" :key="index">
                       <ion-select-option :value="item.id_organiza_viaje" v-text="item.nombre"></ion-select-option>
                     </template>
                   </ion-select>
@@ -259,10 +259,12 @@ import {
   IonSelectOption,
   IonToggle,
 } from '@ionic/vue';
-import { defineComponent, reactive, computed, watch, ref } from 'vue';
+import { defineComponent, computed, watch, ref, inject } from 'vue';
 
 //plugins
 import { Field, ErrorMessage } from 'vee-validate';
+
+import { fnUpdateSchema,schemaFormValidation, currentStepIndex } from "@/symbols/counterStep";
 
 // custom code
 import { store as customStore } from "@/store";
@@ -284,44 +286,57 @@ export default defineComponent({
   },
 
   setup() {
-    let store = reactive(customStore);
+    let store = customStore;
     let paisesFtr = ref<any>([]);
     let municipiosFtr = ref<any>([]);
     let estadosFtr = ref<any>([]);
-
-
-
+    const upSchema:any = inject(fnUpdateSchema);
+    let formSchema:any = inject(schemaFormValidation);
+    const indexStep:any = inject(currentStepIndex);
+   
     const isCongreso =  computed( () => {
       return store.current_captura.select_proposito?.includes(2);
     })
 
-    const transportesFiltrado =  computed( () => {
-      return store.transportes.filter((item:any) => item.tipo === 1)
-    })
-
-    watch(() => store.current_captura.select_nacionalidad, (vNew, vOld) => {
+    watch(() => store.current_captura.select_nacionalidad, (vNew:any, vOld:any) => {
       paisesFtr.value = store.paises.filter(function (item:any) {
-        if(vNew == 1)
+        if(vNew === 1)
           return item.nombre.toLowerCase() == 'méxico';
         else
-          return store.current_captura.select_nacionalidad != null && item.nombre.toLowerCase() != 'méxico'
+          return item.nombre.toLowerCase() != 'méxico'
       })
-      store.current_captura.select_pais_origen = vNew === 1 ? paisesFtr.value[0].id_pais : null;
-      store.current_captura.select_estado     =  store.current_captura.select_estado && !vOld ? store.current_captura.select_estado :  null;
-      store.current_captura.select_municipio  =   store.current_captura.select_municipio && !vOld ? store.current_captura.select_municipio :  null;
+
+      if(vNew === 1) {
+         formSchema.value[indexStep.value] = { 
+          ...formSchema.value[indexStep.value], 
+          select_estado:'required',
+          municipio:'required',
+          escolaridad:'required',
+        }
+      } else {
+       delete formSchema.value[indexStep.value].select_estado;
+       delete formSchema.value[indexStep.value].municipio;
+       delete formSchema.value[indexStep.value].escolaridad;
+      }
+      upSchema(formSchema.value);
+      let select_pais = vNew === 1 ? paisesFtr.value[0].id_pais : null;
+      let select_est  = store.current_captura.select_estado && !vOld ? store.current_captura.select_estado :  null;
+      let select_mun  = store.current_captura.select_municipio && !vOld ? store.current_captura.select_municipio :  null;
+      let current_cp  = {...store.current_captura, select_pais_origen:select_pais, select_estado:select_est, select_municipio:select_mun}
+      store.inicializarCaptura(current_cp);
     });
 
-    watch(() => store.current_captura.select_pais_origen, (vNew) => {
-      let estados = store.estados.filter((item:any) => item.id_pais == vNew);
-      estadosFtr.value =  estados.sort();
+    watch(() => store.current_captura.select_pais_origen, (vNewP) => {
+      let estados       = store.estados.filter((item:any) => item.id_pais == vNewP);
+      estadosFtr.value  =  estados.sort((a, b) => (b.nombre > a.nombre) ? -1 : 1);
       store.current_captura.select_estado = store.current_captura.select_estado ? store.current_captura.select_estado :  null;
     });
 
     watch(() => store.current_captura.select_estado, (vNew, vOld) => {
       let municipios =   store.municipios.filter((item:any) => item.id_estado == vNew);
-      municipiosFtr.value = municipios.sort();
-      store.current_captura.select_municipio =   store.current_captura.select_municipio && !vOld ? store.current_captura.select_municipio :  null;
-    });
+      municipiosFtr.value = municipios.sort((a, b) => (b.nombre > a.nombre) ? -1 : 1);
+      store.current_captura.select_municipio =  store.current_captura.select_municipio && !vOld ? store.current_captura.select_municipio :  null;
+    }, { immediate:true, flush:'post'});
 
     watch(() => store.current_captura.select_proposito, () => {
       store.current_captura.select_congreso =  null;
@@ -332,14 +347,9 @@ export default defineComponent({
       estadosFtr,
       municipiosFtr,
       isCongreso,
-      transportesFiltrado,
       store,
-      paisesFtr
+      paisesFtr,
     }
   }
 });
-</script>
-
-<style scoped>
-
-</style>
+</script>>

@@ -62,7 +62,7 @@ import {
   IonRefresher,
   IonRefresherContent,
 } from '@ionic/vue';
-import {defineComponent, reactive, ref} from 'vue';
+import {defineComponent, ref} from 'vue';
 
 import moment from 'moment';
 import 'moment/locale/es-mx';

@@ -38,7 +38,7 @@ export const store = reactive({
         escolaridades: Array<any>(),
         edades: Array<any>(),
         transportes: Array<any>(),
-        organizaciones: Array<any>(),
+        organizadores: Array<any>(),
         capturas:Array<ICaptura>(),
         captura_detalle: Array<any>(),
         nacionalidades: [
@@ -62,12 +62,12 @@ export const store = reactive({
                 { name:'organizadores', title: "Organizó su viaje", cargado: false, color:"warning"},
                 { name:'edades', title: "Rango de edades", cargado: false, color:"warning"},
         ],
-        inicializarCaptura( param:any= null) {
-                this.current_captura = {
+        inicializarCaptura( param:ICaptura) {
+                const local_captura = {
                         id_modulo_informacion: param === null ? null : param.id_modulo_informacion,
                         id_usuario_captura: param === null ? null : param.id_usuario_captura,
                         select_nacionalidad: param === null ? null : param.select_nacionalidad,
-                        select_pais_origen: param === null ? null : param.select_pais_origen,
+                        select_pais_origen: param.select_pais_origen,
                         select_estado: param === null ? null : param.select_estado,
                         select_municipio: param === null ? null : param.select_municipio,
                         select_genero: param === null ? null : param.select_genero,
@@ -86,20 +86,22 @@ export const store = reactive({
                         select_organizador: param === null ? null : param.select_organizador,
                         fecha_registro: param === null ? null : param.fecha_registro,
                         fecha_modificacion: param === null ? null : param.fecha_modificacion,
+              
                 }
+                this.current_captura = local_captura;
         },
         inicializarCat() {
                 this.paises=  Array<any>();
                 this.estados=  Array<any>();
                 this.municipios=  Array<any>(),
-                    this.propositos=  Array<any>(),
-                    this.congresos=  Array<any>();
+                this.propositos=  Array<any>(),
+                this.congresos=  Array<any>();
                 this.alojamientos=  Array<any>();
                 this.medios=  Array<any>();
                 this.escolaridades=  Array<any>();
                 this.edades=  Array<any>();
                 this.transportes=  Array<any>();
-                this.organizaciones=  Array<any>();
+                this.organizadores=  Array<any>();
         },
         loading: 0,
         autenticado:0,

@@ -31,20 +31,20 @@
 // core component
 import { IonGrid, IonRow, IonCol, IonIcon, IonButton, IonLoading} from "@ionic/vue";
 import { arrowBackOutline, arrowForwardOutline } from "ionicons/icons";
-import { ref, computed, provide, defineProps, defineEmits } from 'vue';
+import { ref, computed, provide, inject, defineEmits } from 'vue';
 
 // plugins
 import { useForm } from 'vee-validate';
 
 // custom plugins
-import {stepCounter as symbolStepCounter, currentStepIndex as symbolCurrentStepIndex, loading } from "@/symbols/counterStep";
+import {stepCounter as symbolStepCounter, currentStepIndex as symbolCurrentStepIndex, loading, schemaFormValidation as schemaForm } from "@/symbols/counterStep";
 
-const props = defineProps({
+/*const props = defineProps({
   validationSchema: {
     type: Array,
     required: true,
   },
-});
+});*/
 
 const emit = defineEmits(['sendForm']);
 
@@ -57,6 +57,10 @@ provide(loading, load_ref);
 const currentStepIdx:any = ref(0);
 provide(symbolCurrentStepIndex, currentStepIdx);
 
+
+const schema_form = inject(schemaForm);
+
+
 const isLastStep = computed(() => {
   return currentStepIdx.value === stepCounter.value - 1;
 });
@@ -66,7 +70,7 @@ const hasPrevious = computed(() => {
 });
 
 const currentSchema = computed(() => {
-  return props.validationSchema[currentStepIdx.value];
+  return schema_form.value[currentStepIdx.value];
 });
 
 const { handleSubmit } = useForm({

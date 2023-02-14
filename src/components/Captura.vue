@@ -9,7 +9,7 @@
       <ion-refresher slot="fixed" @ionRefresh="handleRefresh($event)">
         <ion-refresher-content></ion-refresher-content>
       </ion-refresher>
-      <v-wizard-captura :validation-schema="validationSchema" @sendForm="guardarRegistro">
+      <v-wizard-captura  @sendForm="guardarRegistro">
         <v-form-step>
           <form-one></form-one>
         </v-form-step>
@@ -43,7 +43,7 @@ import {
   IonRefresher,
   IonRefresherContent,
 } from '@ionic/vue';
-import { defineComponent, reactive, onBeforeMount } from 'vue';
+import { defineComponent, reactive, onBeforeMount, provide, ref } from 'vue';
 
 
 // plugins
@@ -51,7 +51,9 @@ import {arrowBackOutline, arrowForwardOutline, save, chevronDownCircleOutline} f
 import { configure, defineRule } from "vee-validate";
 import { setLocale, localize } from '@vee-validate/i18n';
 import { required, email, numeric } from "@vee-validate/rules";
-import { useRoute,onBeforeRouteUpdate, onBeforeRouteLeave, useRouter } from 'vue-router'
+import { useRoute, onBeforeRouteLeave, useRouter } from 'vue-router'
+
+import { schemaFormValidation as schemaForm, fnUpdateSchema } from "@/symbols/counterStep";
 
 
 // custom components
@@ -78,13 +80,13 @@ configure({
   }),
 })
 
+
 const validationSchema = [
   {
     nacionalidad: 'required',
-    select_pais_origen: 'required',
+    pais: 'required',
     genero: 'required',
     edad: 'required',
-    escolaridad: 'required',
     turista_viajando: 'required|numeric',
     proposito: 'required',
     alojamiento: 'required',
@@ -93,6 +95,7 @@ const validationSchema = [
     organizador:'required'
   }
 ];
+
 setLocale('es');
 
 export default defineComponent({
@@ -121,6 +124,15 @@ export default defineComponent({
     const router       = useRouter();
     let cuc:any     = route.params.idx;
 
+    let vlSchema = ref(validationSchema);
+
+    const updateSchema = (value:any) => {
+      vlSchema.value = value;
+    }
+
+    provide(fnUpdateSchema, updateSchema);
+    provide(schemaForm, vlSchema);
+
 
     const presentAlert = async () => {
       const alert = await alertController.create({
@@ -133,7 +145,7 @@ export default defineComponent({
             role: 'confirm',
             handler: () => {
               router.go(0);
-              store.inicializarCaptura();
+              store.inicializarCaptura(store.current_captura);
             },
           },
         ],
@@ -166,7 +178,7 @@ export default defineComponent({
       store.current_captura.fecha_modificacion =  timenow;
       store.current_captura.id_modulo_informacion =  store.modulo_informacion;
       store.current_captura.id_usuario_captura =  current_usuario.id_usuario;
-
+      
       !isNaN(cuc)
           ? current_items[cuc] = store.current_captura
           : current_items.push(store.current_captura);
@@ -185,7 +197,7 @@ export default defineComponent({
     const cargarDef = async () => {
       await loadCatalogos();
       let capturasr =  await getCaptura(route.params.idx);
-      store.inicializarCaptura(capturasr)
+      store.inicializarCaptura(capturasr === null ?  store.current_captura : capturasr)
       store.loading = 0;
     }
 
@@ -202,9 +214,8 @@ export default defineComponent({
     // cargar inicial
     cargarDef();
 
-
     onBeforeRouteLeave(() => {
-      store.inicializarCaptura();
+      store.inicializarCaptura(store.current_captura);
     })
 
     return {

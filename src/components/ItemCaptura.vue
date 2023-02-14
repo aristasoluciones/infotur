@@ -39,7 +39,7 @@ import {
   IonCol,
 } from '@ionic/vue';
 
-import {defineComponent, reactive, ref} from 'vue';
+import {defineComponent, reactive} from 'vue';
 
 //plugins
 import { trash, cloudCircle, cloudUpload, createOutline } from "ionicons/icons";
